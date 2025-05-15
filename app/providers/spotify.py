@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import os
 from app.providers.base import AccountAttributes, Album, Artist, BrowseCard, BrowseSection, Image, MusicProviderClient, Owner, Playlist, PlaylistTrack, Profile, Track, ExternalUrl, Category
-import requests
+import base64
 
 import json
 import requests
@@ -24,7 +24,7 @@ class SpotifyClient(MusicProviderClient):
     def __init__(self, cookie_file: Optional[str] = None):
         self.base_url = "https://api-partner.spotify.com"
         self.session_data = None
-        self.config_data = None
+        self.app_server_config_data = None
         self.client_token = None
         self.cookies = None
         if cookie_file:
@@ -52,11 +52,11 @@ class SpotifyClient(MusicProviderClient):
         """
         if self.cookies:
             l.debug("Authenticating using cookies.")
-            self.session_data, self.config_data = self._fetch_session_data()
+            self.session_data, self.app_server_config_data = self._fetch_session_data()
             self.client_token = self._fetch_client_token()
         else:
             l.debug("Authenticating without cookies.")
-            self.session_data, self.config_data = self._fetch_session_data(fetch_with_cookies=False)
+            self.session_data, self.app_server_config_data = self._fetch_session_data(fetch_with_cookies=False)
             self.client_token = self._fetch_client_token()
 
     def _fetch_session_data(self, fetch_with_cookies: bool = True):
@@ -76,10 +76,12 @@ class SpotifyClient(MusicProviderClient):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         session_script = soup.find('script', {'id': 'session'})
-        config_script = soup.find('script', {'id': 'config'})
-        if session_script and config_script:
+        app_server_config_script = soup.find('script', {'id': 'appServerConfig'}).text # decode JWT to obtain correlation required for obtain Bearer Token
+        decoded_app_server_config_script = base64.b64decode(app_server_config_script) # base64 decode
+        decoded_app_server_config_script = decoded_app_server_config_script.decode().strip("b'") # decode from byte object to string object
+        if session_script.string and decoded_app_server_config_script:
             l.debug("fetched session and config scripts")
-            return json.loads(session_script.string), json.loads(config_script.string)
+            return json.loads(session_script.string, decoded_app_server_config_script)
         else:
             raise ValueError("Failed to fetch session or config data.")
 
@@ -105,7 +107,7 @@ class SpotifyClient(MusicProviderClient):
                     "device_model": "unknown",
                     "os": "windows",
                     "os_version": "NT 10.0",
-                    "device_id": self.config_data.get("correlationId", ""),
+                    "device_id": self.app_server_config_data.get("correlationId", ""),
                     "device_type": "computer"
                 }
             }
