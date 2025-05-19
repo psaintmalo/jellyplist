@@ -191,6 +191,7 @@ class SpotifyClient(MusicProviderClient):
         # if the response is unauthorized, we need to reauthenticate
         if response.status_code == 401:
             l.debug("reauthenticating")
+            self.authenticate()
             headers['authorization'] = f'Bearer {self.access_token}'
             headers['client-token'] = self.client_token.get('token','')
             response = requests.get(f"{self.base_url}/{endpoint}", headers=headers, params=params, cookies=self.cookies)
