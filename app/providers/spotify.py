@@ -151,9 +151,9 @@ class SpotifyClient(MusicProviderClient):
 
     def _get_access_token_and_client_id(self, fetch_with_cookies: bool = True):
         """
-        Fetch the Access Token and Client ID by making GET call to open.spotify.com/get_access_token
+        Fetch the Access Token and Client ID by making GET call to open.spotify.com/api/token
         """
-        url = f'https://open.spotify.com/get_access_token'
+        url = f'https://open.spotify.com/api/token'
         headers = {
             'accept': 'application/json',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
