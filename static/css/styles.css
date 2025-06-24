@@ -125,3 +125,29 @@ body {
       transform: scale(1);
     }
   }
+
+/* Modal Styles - Prevent content shift */
+/* Prevent content shift when modal is shown by ensuring scrollbar space is preserved */
+body.modal-open {
+    padding-right: 0 !important;
+    overflow: hidden;
+}
+
+/* Ensure the main content doesn't shift when modal scrollbar compensation occurs */
+.container-fluid {
+    transition: none;
+}
+
+/* Fix for Bootstrap modal scrollbar compensation - prevent any padding/margin adjustments */
+.modal-open .container-fluid,
+.modal-open .d-flex,
+.modal-open .table,
+.modal-open .sidebar {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Alternative approach: force consistent scrollbar space */
+html {
+    overflow-y: scroll;
+}
