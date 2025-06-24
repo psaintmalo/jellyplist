@@ -64,10 +64,10 @@ def make_celery(app):
     celery.conf.update(app.config)
     # Configure Celery Beat schedule
     celery.conf.beat_schedule = {
-        'download-missing-tracks-schedule': {
-            'task': 'app.tasks.download_missing_tracks',
-            'schedule': crontab(minute='30'),  
-        },
+        #'download-missing-tracks-schedule': {
+        #    'task': 'app.tasks.download_missing_tracks',
+        #    'schedule': crontab(minute='30'),  
+        #},
         'check-playlist-updates-schedule': {
             'task': 'app.tasks.check_for_playlist_updates',
             'schedule': crontab(minute='25'),  

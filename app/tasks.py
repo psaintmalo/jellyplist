@@ -106,6 +106,7 @@ def update_all_playlists_track_status(self):
 
 @celery.task(bind=True)
 def download_missing_tracks(self):
+    return {'status': 'Download missing tracks disabled'}
     lock_key = "download_missing_tracks_lock"
 
     if task_manager.acquire_lock(lock_key, expiration=1800): 
